@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import connectToMongoDB from './utils/dbConnect.js';
 import authRouter from './routes/auth.route.js';
 import userRouter from './routes/user.route.js';
@@ -12,6 +13,8 @@ dotenv.config();
 const port = process.env.PORT || 8000;
 
 connectToMongoDB();
+
+const __dirname = path.resolve();
 
 const app = express();
 app.use(express.json());
@@ -28,6 +31,11 @@ app.use('/api/users', userRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/comments', commentRouter);
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
